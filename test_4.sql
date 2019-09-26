@@ -1,418 +1,138 @@
--- Bigger than Russia
+-- Tutorial 4: SELECT within SELECT Tutorial
 
--- 1.List each country name where the population is larger than that of 'Russia'.
+-- 1) List each country name where the population is larger than that of 'Russia'.
 
--- world(name, continent, area, population, gdp)
+-- answer:
+SELECT name FROM world
+WHERE population >
+(SELECT population FROM world
+WHERE name='Russia')
 
--- SELECT name FROM world
---   WHERE population >
---      (SELECT population FROM world
---       WHERE name='Russia')
--- Correct answer
--- name
--- Bangladesh
--- Brazil
--- China
--- India
--- Indonesia
--- Nigeria
--- Pakistan
--- United States
+-- 2) Show the countries in Europe with a per capita GDP greater than 'United Kingdom'.
 
--- Richer than UK
--- 2.
--- Show the countries in Europe with a per capita GDP greater than 'United Kingdom'.
+-- answer:
+SELECT name FROM world
+WHERE continent = 'Europe' AND GDP/population > (SELECT GDP/population 
+FROM world WHERE name = 'United Kingdom');
 
--- Per Capita GDP
--- SELECT name
--- FROM world
--- WHERE (gdp/population) > (SELECT gdp/population
--- FROM world
--- WHERE name = 'United Kingdom') AND continent = 'Europe'
--- Submit SQLRestore default
--- Correct answer
--- name
--- Andorra
--- Austria
--- Belgium
--- Denmark
--- Finland
--- France
--- Germany
--- Iceland
--- Ireland
--- Liechtenstein
--- Luxembourg
--- Monaco
--- Netherlands
--- Norway
--- San Marino
--- Sweden
--- Switzerland
+-- 3) List the name and continent of countries in the continents containing either 
+--    Argentina or Australia. Order by name of the country.
 
--- Neighbours of Argentina and Australia
--- 3.
+-- answer:
+SELECT name, continent FROM world
+WHERE continent LIKE ('South America') OR continent LIKE ('Oceania')
+ORDER BY name;
 
--- List the name and continent of countries in the continents containing either Argentina or Australia. Order by name of the country.
+-- 4) Which country has a population that is more than Canada but less than Poland? 
+--    Show the name and the population.
 
--- SELECT name, continent
--- FROM world
--- WHERE continent = (SELECT continent FROM world 
--- WHERE name = 'Argentina') OR continent = (SELECT continent FROM world 
--- WHERE name = 'Australia')
--- ORDER BY name
+-- answer:
+SELECT name, population FROM world
+WHERE population > (SELECT population FROM world WHERE
+name = 'Canada') AND population < (SELECT population FROM world WHERE
+name = 'Poland');
 
--- Submit SQLRestore default
--- Correct answer
--- name	continent
--- Argentina	South America
--- Australia	Oceania
--- Bolivia	South America
--- Brazil	South America
--- Chile	South America
--- Colombia	South America
--- Ecuador	South America
--- Fiji	Oceania
--- Guyana	South America
--- Kiribati	Oceania
--- Marshall Islands	Oceania
--- Micronesia, Federated States of	Oceania
--- Nauru	Oceania
--- New Zealand	Oceania
--- Palau	Oceania
--- Papua New Guinea	Oceania
--- Paraguay	South America
--- Peru	South America
--- Saint Vincent and the Grenadines	South America
--- Samoa	Oceania
--- Solomon Islands	Oceania
--- Suriname	South America
--- Tonga	Oceania
--- Tuvalu	Oceania
--- Uruguay	South America
--- Vanuatu	Oceania
--- Venezuela	South America
--- Between Canada and Poland
--- 4.
--- Which country has a population that is more than Canada but less than Poland? Show the name and the population.
+-- 5) Show the name and the population of each country in Europe. Show the population 
+--    as a percentage of the population of Germany.
 
--- SELECT name, population
--- FROM world
--- WHERE population > (SELECT population FROM world WHERE name = 'Canada') AND population < (SELECT population FROM world WHERE name = 'Poland')
+-- answer:
+SELECT name, CONCAT(ROUND(100 * population/
+(SELECT population FROM world WHERE name = 'Germany')), '%')
+FROM world WHERE continent = 'Europe';
 
--- Submit SQLRestore default
--- Correct answer
--- name	population
--- Iraq	36004552
--- Sudan	37289406
--- Percentages of Germany
--- 5.
--- Germany (population 80 million) has the largest population of the countries in Europe. Austria (population 8.5 million) has 11% of the population of Germany.
+-- 6) Which countries have a GDP greater than every country in Europe? [Give the name 
+--    only.] (Some countries may have NULL gdp values)
 
--- Show the name and the population of each country in Europe. Show the population as a percentage of the population of Germany.
+-- answer:
+SELECT name
+FROM world
+WHERE GDP > ALL(SELECT GDP
+FROM world
+WHERE GDP>0 AND continent = 'Europe')
 
--- Decimal places
--- Percent symbol %
--- You can use the function CONCAT to add the percentage symbol.
--- SELECT name, CONCAT(ROUND((population/(SELECT population FROM world WHERE name='Germany')) * 100), '%' )AS population_percentage
--- FROM world
--- WHERE continent = 'Europe'
--- Submit SQLRestore default
--- Correct answer
--- name	population_pe..
--- Albania	3%
--- Andorra	0%
--- Austria	11%
--- Belarus	12%
--- Belgium	14%
--- Bosnia and Herzegovina	5%
--- Bulgaria	9%
--- Croatia	5%
--- Czech Republic	13%
--- Denmark	7%
--- Estonia	2%
--- Finland	7%
--- France	82%
--- Germany	100%
--- Greece	14%
--- Hungary	12%
--- Iceland	0%
--- Ireland	6%
--- Italy	75%
--- Kazakhstan	21%
--- Latvia	2%
--- Liechtenstein	0%
--- Lithuania	4%
--- Luxembourg	1%
--- Macedonia	3%
--- Malta	1%
--- Moldova	4%
--- Monaco	0%
--- Montenegro	1%
--- Netherlands	21%
--- Norway	6%
--- Poland	48%
--- Portugal	13%
--- Romania	25%
--- San Marino	0%
--- Serbia	9%
--- Slovakia	7%
--- Slovenia	3%
--- Spain	58%
--- Sweden	12%
--- Switzerland	10%
--- Ukraine	53%
--- United Kingdom	79%
--- Vatican City	0%
+-- 7) Find the largest country (by area) in each continent, show the continent, the name and the area:
 
+-- answer:
+SELECT continent, name, area FROM world x
+WHERE area >= ALL
+(SELECT area FROM world y
+WHERE y.continent=x.continent
+AND area>0)
 
--- To get a well rounded view of the important features of SQL you should move on to the next tutorial concerning aggregates.
+-- 8) List each continent and the name of the country that comes first alphabetically.
 
--- To gain an absurdly detailed view of one insignificant feature of the language, read on.
+-- answer:
+SELECT continent, name FROM world x
+WHERE name <= ALL
+(SELECT name FROM world y
+WHERE y.continent=x.continent)
 
--- We can use the word ALL to allow >= or > or < or <=to act over a list. For example, you can find the largest country in the world, by population with this query:
+-- 9) Find the continents where all countries have a population <= 25000000. Then find the names 
+--    of the countries associated with these continents. Show name, continent and population.
 
--- SELECT name
---   FROM world
---  WHERE population >= ALL(SELECT population
---                            FROM world
---                           WHERE population>0)
--- You need the condition population>0 in the sub-query as some countries have null for population.
+-- answer:
+SELECT name, continent, population FROM world
+WHERE population <= 25000000 AND continent IN ('Caribbean', 'Oceania');
 
--- Bigger than every country in Europe
--- 6.
--- Which countries have a GDP greater than every country in Europe? [Give the name only.] (Some countries may have NULL gdp values)
+-- 10) Some countries have populations more than three times that of any of their neighbours 
+--     (in the same continent). Give the countries and continents.
 
--- SELECT name
--- FROM world
--- WHERE gdp > ALL(SELECT gdp FROM world WHERE continent = 'Europe' AND gdp > 0)
--- Submit SQLRestore default
--- Correct answer
--- name
--- China
--- Japan
--- United States
--- We can refer to values in the outer SELECT within the inner SELECT. We can name the tables so that we can tell the difference between the inner and outer versions.
+-- answer:
+SELECT name, continent FROM world x
+WHERE population > ALL
+(SELECT population * 3 FROM world y
+WHERE y.continent=x.continent 
+AND population >0 AND y.name != x.name);
 
--- Largest in each continent
--- 7.
--- Find the largest country (by area) in each continent, show the continent, the name and the area:
+----------------------------------------------------------------------------------------------------------------
 
--- SELECT continent, name, area FROM world x
---   WHERE area >= ALL
---     (SELECT area FROM world y
---         WHERE y.continent=x.continent
---           AND area>0)
+-- Nested SELECT Quiz
 
--- Submit SQLRestore default
--- The above example is known as a correlated or synchronized sub-query.
+-- 1) Select the code that shows the name, region and population of the smallest country in each region
 
--- Using correlated subqueries
--- A correlated subquery works like a nested loop: the subquery only has access to rows related to a single record at a time in the outer query. The technique relies on table aliases to identify two different uses of the same table, one in the outer query and the other in the subquery.
+-- answer:
+SELECT region, name, population FROM bbc x WHERE population <= ALL 
+(SELECT population FROM bbc y WHERE y.region=x.region AND population>0)
 
--- One way to interpret the line in the WHERE clause that references the two table is “… where the correlated values are the same”.
+-- 2) Select the code that shows the countries belonging to regions with all populations over 50000
 
--- In the example provided, you would say “select the country details from world where the population is greater than or equal to the population of all countries where the continent is the same”.
+-- answer:
+SELECT name,region,population FROM bbc x WHERE 50000 < ALL 
+(SELECT population FROM bbc y WHERE x.region=y.region AND y.population>0)
 
--- Correct answer
--- continent	name	area
--- Africa	Algeria	2381741
--- Oceania	Australia	7692024
--- South America	Brazil	8515767
--- North America	Canada	9984670
--- Asia	China	9596961
--- Caribbean	Cuba	109884
--- Europe	Kazakhstan	2724900
--- Eurasia	Russia	17125242
--- First country of each continent (alphabetically)
--- 8.
--- List each continent and the name of the country that comes first alphabetically.
+-- 3) Select the code that shows the countries with a less than a third of the population of the countries around it
 
--- SELECT continent, name FROM world x
---   WHERE name <= ALL
---     (SELECT name FROM world y
---         WHERE y.continent=x.continent
---           )
--- Submit SQLRestore default
--- Correct answer
--- continent	name
--- Africa	Algeria
--- Asia	Afghanistan
--- Caribbean	Antigua and Barbuda
--- Eurasia	Armenia
--- Europe	Albania
--- North America	Belize
--- Oceania	Australia
--- South America	Argentina
--- Difficult Questions That Utilize Techniques Not Covered In Prior Sections
--- 9.
--- Find the continents where all countries have a population <= 25000000. Then find the names of the countries associated with these continents. Show name, continent and population.
+-- answer:
+SELECT name, region FROM bbc x
+WHERE population < ALL (SELECT population/3 FROM bbc y WHERE y.region = x.region AND y.name != x.name)
 
--- SELECT name,continent, population 
--- FROM world 
--- WHERE continent NOT IN (
--- SELECT DISTINCT continent
--- FROM world
--- WHERE population > 25000000 )
+-- 4) Select the result that would be obtained from the following code:
 
--- Submit SQLRestore default
--- Correct answer
--- name	continent	population
--- Antigua and Barbuda	Caribbean	86295
--- Australia	Oceania	23545500
--- Bahamas	Caribbean	351461
--- Barbados	Caribbean	285000
--- Cuba	Caribbean	11167325
--- Dominica	Caribbean	71293
--- Dominican Republic	Caribbean	9445281
--- Fiji	Oceania	858038
--- Grenada	Caribbean	103328
--- Haiti	Caribbean	10413211
--- Jamaica	Caribbean	2717991
--- Kiribati	Oceania	106461
--- Marshall Islands	Oceania	56086
--- Micronesia, Federated States of	Oceania	101351
--- Nauru	Oceania	9945
--- New Zealand	Oceania	4538520
--- Palau	Oceania	20901
--- Papua New Guinea	Oceania	7398500
--- Saint Lucia	Caribbean	180000
--- Samoa	Oceania	187820
--- Solomon Islands	Oceania	581344
--- Tonga	Oceania	103036
--- Trinidad and Tobago	Caribbean	1328019
--- Tuvalu	Oceania	11323
--- Vanuatu	Oceania	264652
--- 10.
--- Some countries have populations more than three times that of any of their neighbours (in the same continent). Give the countries and continents.
+-- answer:
+/* Table-D
+France
+Germany
+Russia
+Turkey */
 
--- SELECT name, continent FROM world x
--- WHERE population > ALL
--- (SELECT population * 3 FROM world y
--- WHERE y.continent=x.continent 
--- AND population >0 AND y.name <> x.name);
--- Submit SQLRestore default
--- Correct answer
--- name	continent
--- Australia	Oceania
--- Brazil	South America
--- Russia	Eurasia
+-- 5) Select the code that would show the countries with a greater GDP than any country in Africa 
+--    (some countries may have NULL gdp values).
 
--- QUIZ
--- ===============================================
--- 1. Select the code that shows the name, region and population of the smallest country in each region
---  SELECT region, name, FROM bbc x WHERE population <= ALL (SELECT population FROM bbc y WHERE y.region=x.region AND population>0)
---  SELECT region, name, population FROM bbc WHERE population <= ALL (SELECT population FROM bbc WHERE population>0)
---  SELECT region, name, population FROM bbc x WHERE population <= ALL (SELECT population FROM bbc y WHERE y.region=x.region AND population>0)
---  SELECT region, name, population FROM bbc x WHERE population = ALL (SELECT population FROM bbc y WHERE y.region=x.region AND population>0)
---  SELECT region, name, population FROM bbc x WHERE population <= ALL (SELECT population FROM bbc y WHERE y.region=x.region AND population<0)
--- 2. Select the code that shows the countries belonging to regions with all populations over 50000
---  SELECT name,region,population FROM bbc x WHERE 50000 < ALL (SELECT population FROM bbc y WHERE population>0)
---  SELECT name,region,population FROM bbc x WHERE 50000 < ALL (SELECT population FROM bbc y WHERE x.region=y.region AND y.population>0)
---  SELECT name,region,population FROM bbc x WHERE 50000 = ALL (SELECT population FROM bbc y WHERE x.region=y.region AND y.population>0)
---  SELECT name,region,population FROM bbc x WHERE 50000 > ALL (SELECT population FROM bbc y WHERE x.region=y.region AND y.population>0)
---  SELECT name,region,population FROM bbc x WHERE 500000 < ALL (SELECT population FROM bbc y WHERE x.region=y.region AND y.population>0)
--- 3. Select the code that shows the countries with a less than a third of the population of the countries around it
--- SELECT name, region FROM bbc x
---  WHERE population < ALL (SELECT population/3 FROM bbc y WHERE y.region = x.region AND y.name != x.name)
--- SELECT name, region FROM bbc x
---  WHERE population = ALL (SELECT population/3 FROM bbc y WHERE y.region = x.region AND y.name != x.name)
--- SELECT name, region FROM bbc x
---  WHERE population > ALL (SELECT population/3 FROM bbc y WHERE y.region = x.region AND y.name != x.name)
---  SELECT name, region FROM bbc x WHERE population < ALL (SELECT population*3 FROM bbc y WHERE y.region = x.region AND y.name != x.name)
---  SELECT name, region FROM bbc x WHERE population < ALL (SELECT population/3 FROM bbc y WHERE y.name != x.name)
--- 4. Select the result that would be obtained from the following code:
--- SELECT name FROM bbc
---  WHERE population >
---        (SELECT population
---           FROM bbc
---          WHERE name='United Kingdom')
---    AND region IN
---        (SELECT region
---           FROM bbc
---          WHERE name = 'United Kingdom')
--- Table-A
--- Andorra
--- Albania
--- Austria
--- Bulgaria
--- Table-B
--- France  Europe
--- Germany Europe
--- Russia  Europe
--- Turkey  Europe
--- Table-C
--- France
--- Germany
--- Andorra
--- Albania
--- Table-D
--- France
--- Germany
--- Russia
--- Turkey
--- Table-E
--- France
--- Germany
--- Russia
--- Turkey
--- Brazil
--- United States of USA
--- Canada
--- 5. Select the code that would show the countries with a greater GDP than any country in Africa (some countries may have NULL gdp values).
--- SELECT name FROM bbc
---  WHERE gdp > ALL (SELECT MAX(gdp) FROM bbc WHERE region = 'Africa' AND gdp=0)
--- SELECT name FROM bbc
---  WHERE gdp > (SELECT MAX(gdp) FROM bbc WHERE region = 'Africa')
--- SELECT name FROM bbc
---  WHERE gdp > ALL (SELECT MIN(gdp) FROM bbc WHERE region = 'Africa')
--- SELECT name FROM bbc
---  WHERE gdp > ALL (SELECT gdp FROM bbc WHERE region = 'Africa')
--- SELECT name FROM bbc
---  WHERE gdp > ALL (SELECT gdp FROM bbc WHERE region = 'Africa' AND gdp<>NULL)
--- 6. Select the code that shows the countries with population smaller than Russia but bigger than Denmark
--- SELECT name FROM bbc
---  WHERE population < (SELECT population FROM bbc WHERE name='Denmark')
---    AND population > (SELECT population FROM bbc WHERE name='Russia')
--- SELECT name FROM bbc
---  WHERE population < (SELECT population FROM bbc WHERE name='Russia')
---    AND population > (SELECT population FROM bbc WHERE name='Denmark')
--- SELECT name FROM bbc
---  WHERE population = (SELECT population FROM bbc WHERE name='Russia')
---    AND population > (SELECT population FROM bbc WHERE name='Denmark')
--- SELECT name FROM bbc
---  WHERE population > (SELECT population FROM bbc WHERE name='Russia')
---    AND population > (SELECT population FROM bbc WHERE name='Denmark')
--- SELECT name FROM bbc
---  WHERE population < (SELECT population FROM bbc WHERE name='Russia'
---    AND population > (SELECT population FROM bbc WHERE name='Denmark')
--- 7. >Select the result that would be obtained from the following code:
--- SELECT name FROM bbc
---  WHERE population > ALL
---        (SELECT MAX(population)
---           FROM bbc
---          WHERE region = 'Europe')
---    AND region = 'South Asia'
--- Table-A
--- Afghanistan
--- Bhutan
--- Nepal
--- Sri Lanka
--- The Maldives
--- Table-B
--- Bangladesh
--- India
--- Pakistan
--- Table-C
--- China
--- India
--- Table-D
--- Brazil
--- Bangladesh
--- China
--- India
--- Table-E
--- France
--- Germany
--- Russia
--- Trukey
+-- answer:
+SELECT name FROM bbc
+WHERE gdp > (SELECT MAX(gdp) FROM bbc WHERE region = 'Africa')
+
+-- 6) Select the code that shows the countries with population smaller than Russia but bigger than Denmark
+
+-- answer:
+SELECT name FROM bbc
+WHERE population < (SELECT population FROM bbc WHERE name='Russia')
+AND population > (SELECT population FROM bbc WHERE name='Denmark')
+
+-- 7) Select the result that would be obtained from the following code:
+
+-- answer:
+/* Table-B
+Bangladesh
+India
+Pakistan */
