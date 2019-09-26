@@ -1,0 +1,183 @@
+-- Total world population
+-- 1.
+-- Show the total population of the world.
+
+-- world(name, continent, area, population, gdp)
+-- SELECT SUM(population)
+-- FROM world
+
+-- List of continents
+-- 2.
+-- List all the continents - just once each.
+
+-- SELECT DISTINCT continent
+-- FROM world
+
+-- GDP of Africa
+-- 3.
+-- Give the total GDP of Africa
+
+-- SELECT SUM(gdp)
+-- FROM world
+-- WHERE continent = 'Africa'
+
+-- Count the big countries
+-- 4.
+-- How many countries have an area of at least 1000000
+
+-- SELECT COUNT(name)
+-- FROM world
+-- WHERE area >= 1000000
+-- Submit SQLRestore default
+-- result
+-- Baltic states population
+-- 5.
+-- What is the total population of ('Estonia', 'Latvia', 'Lithuania')
+
+-- SELECT SUM(population)
+-- FROM world
+-- WHERE name IN ('Estonia', 'Latvia', 'Lithuania')
+
+
+-- Using GROUP BY and HAVING
+-- You may want to look at these examples: Using GROUP BY and HAVING.
+
+-- Counting the countries of each continent
+-- 6.
+-- For each continent show the continent and number of countries.
+
+-- SELECT continent, COUNT(name)
+-- FROM world
+-- GROUP BY continent
+-- Submit SQLRestore default
+-- Correct answer
+-- continent	COUNT(name)
+-- Africa	53
+-- Asia	47
+-- Caribbean	11
+-- Eurasia	2
+-- Europe	44
+-- North America	11
+-- Oceania	14
+-- South America	13
+-- Counting big countries in each continent
+-- 7.
+-- For each continent show the continent and number of countries with populations of at least 10 million.
+
+-- SELECT continent, COUNT(name)
+-- FROM world
+-- WHERE population >= 10000000
+-- GROUP BY continent
+-- Submit SQLRestore default
+-- Correct answer
+-- continent	COUNT(name)
+-- Africa	29
+-- Asia	26
+-- Caribbean	2
+-- Eurasia	1
+-- Europe	14
+-- North America	4
+-- Oceania	1
+-- South America	8
+-- Counting big continents
+-- 8.
+-- List the continents that have a total population of at least 100 million.
+
+-- SELECT continent
+-- FROM world
+-- GROUP BY continent
+-- HAVING SUM(population) >= 100000000
+
+-- Correct answer
+-- continent
+-- Africa
+-- Asia
+-- Eurasia
+-- Europe
+-- North America
+-- South America
+-- QUIZ
+
+-- 1. Select the statement that shows the sum of population of all countries in 'Europe'
+--  SELECT name, population FROM bbc WHERE region = 'Europe'
+--  SELECT population FROM bbc WHERE region = 'Europe' SUM BY region
+--  SELECT SUM(population) FROM bbc WHERE region = 'Europe'
+--  SELECT SUM(population FROM bbc WHERE region = 'Europe')
+--  SUM population FROM bbc WHERE region = 'Europe'
+-- 2. Select the statement that shows the number of countries with population smaller than 150000
+--  SELECT COUNT(name) FROM bbc WHERE population < 150000
+--  SELECT COUNT(population < 150000) FROM bbc
+--  SELECT name FROM bbc WHERE population < 150000
+--  SELECT population AS COUNT FROM bbc WHERE population < 150000
+--  SELECT SUM() FROM bbc WHERE population < 150000
+-- 3. Select the list of core SQL aggregate functions
+-- AVG(), COUNT(), FIRST(), LAST(), SUM()
+-- AVG(), COUNT(), MAX(), MEDIAN(), MIN(), ROUND(), SUM()
+-- AVG(), COUNT(), CONCAT(), FIRST(), LAST(), MAX(), MIN(), SUM()
+-- AVG(), COUNT(), MAX(), MIN(), SUM()
+-- COUNT(), SUM()
+-- 4. Select the result that would be obtained from the following code:
+--  SELECT region, SUM(area)
+--    FROM bbc 
+--   WHERE SUM(area) > 15000000 
+--   GROUP BY region
+-- Table-A
+-- Europe	17000000
+-- Table-B
+-- Europe	17000000
+-- Asia-Pacific	23460000
+-- North America	21660000
+-- Table-C
+-- Europe
+-- Asia-Pacific
+-- North America
+-- No result due to invalid use of the GROUP BY function
+-- No result due to invalid use of the WHERE function
+-- 5. Select the statement that shows the average population of 'Poland', 'Germany' and 'Denmark'
+--  SELECT AVG(population) FROM bbc WHERE name = ('Poland', 'Germany', 'Denmark')
+--  SELECT AVG(population) FROM bbc WHERE name IN ('Poland', 'Germany', 'Denmark')
+--  SELECT AVG(population) FROM bbc WHERE name LIKE ('Poland', 'Germany', 'Denmark')
+--  SELECT AVG(population) FROM bbc WHERE name LIKE (Poland, Germany, Denmark)
+--  SELECT population FROM bbc WHERE name IN ('Poland', 'Germany', 'Denmark')
+-- 6. Select the statement that shows the medium population density of each region
+--  SELECT region, AVG(population/area) AS density FROM bbc
+--  SELECT region, COUNT(population)/COUNT(area) AS density FROM bbc GROUP BY region
+--  SELECT region, SUM(population)/COUNT(area) AS density FROM bbc GROUP BY region
+--  SELECT region, SUM(population)/SUM(area) AS density FROM bbc HAVING region
+--  SELECT region, SUM(population)/SUM(area) AS density FROM bbc GROUP BY region
+-- 7. Select the statement that shows the name and population density of the country with the largest population
+--  SELECT name, density AS population/area FROM bbc WHERE population = MAX(population)
+--  SELECT name, density AS population/area FROM bbc WHERE population = (SELECT MAX(population) FROM bbc)
+--  SELECT name, MAX (population) FROM bbc WHERE population / (SELECT area FROM bbc)
+--  SELECT name, population/area AS density FROM bbc WHERE population = (SELECT MAX(population) FROM bbc)
+--  SELECT name, population/area AS density FROM bbc WHERE population > (SELECT MAX(population) FROM bbc)
+-- 8. Pick the result that would be obtained from the following code:
+--  SELECT region, SUM(area) 
+--    FROM bbc 
+--   GROUP BY region 
+--   HAVING SUM(area)<= 20000000
+-- Table-A
+-- 732240
+-- 13403102
+-- 17740392
+-- 4943771
+-- Table-B
+-- Africa	22550927
+-- Asia-Pacific	28759578
+-- Europe	23866987
+-- North America	21660000
+-- Table-C
+-- Africa
+-- Asia-Pacific
+-- Europe
+-- North America
+-- Table-D
+-- Americas	732240
+-- Middle East	13403102
+-- South America	17740392
+-- South Asia	9437710
+-- Table-E
+-- Americas
+-- Middle East
+-- South America
+-- South Asia
