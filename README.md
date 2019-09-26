@@ -1,12 +1,12 @@
 # SQL_Project
 
-Description
+#### Description
 This is the SQL Zoo project as part of Microverse Curriculum.
 
 Link to the project
 
-Author
-Marvellous Ubani
+#### Author
+[Marvellous Ubani](https://github.com/MarvellousUbani)
 
-Languages Used
+#### Languages Used
 SQL
